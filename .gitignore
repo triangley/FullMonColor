@@ -1,0 +1,6 @@
+.vs/
+Binaries/
+Binaries-Int/
+
+*.filters
+*.user
