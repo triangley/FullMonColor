@@ -70,16 +70,26 @@ int CALLBACK WinMain
 	// for random
 	srand((UINT) time(NULL));
 
-	if (argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "/help") == 0))
+	if (argc == 2)
 	{
-		MessageBox
-		(
-			NULL,
-			TEXT("FullMonColor HELP: Either execute with 3 parameters (being the RGB color between the inclusive range 0-255) or execute normally to get a window to pick the color."),
-			TEXT("Help Command Interface"),
-			MB_OK | MB_ICONINFORMATION
-		);
-		return EXIT_SUCCESS;
+		if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "/help") == 0)
+		{
+			MessageBox
+			(
+				NULL,
+				TEXT("FullMonColor HELP: Either execute with 3 parameters (being the RGB color between the inclusive range 0-255) or execute normally to get a window to pick the color."),
+				TEXT("Help Command Interface"),
+				MB_OK | MB_ICONINFORMATION
+			);
+			return EXIT_SUCCESS;
+		}
+		else if (strcmp(argv[1], "--random") == 0 || strcmp(argv[1], "-random") == 0 || strcmp(argv[1], "/random") == 0)
+		{
+			COLOR_R = RandomInRange(COLOR_MIN, COLOR_MAX);
+			COLOR_G = RandomInRange(COLOR_MIN, COLOR_MAX);
+			COLOR_B = RandomInRange(COLOR_MIN, COLOR_MAX);
+			goto SECT_Show;
+		}
 	}
 
 	if (argc == 4)
@@ -178,6 +188,7 @@ int CALLBACK WinMain
 			Sleep(1);
 		}
 	}
+SECT_Show:
 	UnregisterClass(CLASS_PICKER_WINDOW, hInstance);
 
 	WNDCLASSEX wcShower;
@@ -337,6 +348,14 @@ LRESULT CALLBACK PickerWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		break;
 	}
+	case WM_KEYDOWN:
+	{
+		if (wParam == VK_ESCAPE || wParam == 'Q')
+		{
+			exit(EXIT_SUCCESS);
+		}
+		break;
+	}
 	}
 	
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);	
@@ -348,7 +367,7 @@ LRESULT CALLBACK MainWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 	{
 	case WM_KEYDOWN:
 	{
-		if (wParam == VK_ESCAPE)
+		if (wParam == VK_ESCAPE || wParam == 'Q')
 		{
 			DestroyWindow(hWnd);
 		}
