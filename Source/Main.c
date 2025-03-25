@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include <CommCtrl.h>
 #include <wchar.h>
+#include <time.h>
 
 #define CLASS_PICKER_WINDOW  TEXT("FULLMONCOLOR_COLOR_PICKER_WINDOW_CLASS")
 #define CLASS_SHOWER_WINDOW  TEXT("FULLMONCOLOR_COLOR_SHOWER_WINDOW_CLASS")
@@ -21,11 +22,17 @@ HWND hPickerWnd = NULL,
 	 hPickerRWnd = NULL,
 	 hPickerGWnd = NULL,
 	 hPickerBWnd = NULL,
-	 hPickerButtonWnd = NULL;
+	 hPickerButtonWnd = NULL,
+	 hPickerShuffleButtonWnd = NULL;
 
 int InRange(int x, int min, int max)
 {
 	return x >= min && x <= max;
+}
+
+int RandomInRange(int min, int max)
+{
+	return rand() % (max + 1 - min) + min;
 }
 
 LRESULT CALLBACK PickerWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -59,6 +66,9 @@ int CALLBACK WinMain
 	int argc    = __argc;
 	char** argv = __argv;
 	InitCommonControls();
+
+	// for random
+	srand((UINT) time(NULL));
 
 	if (argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-help") == 0 || strcmp(argv[1], "/help") == 0))
 	{
@@ -254,7 +264,8 @@ LRESULT CALLBACK PickerWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		hPickerGWnd = CreateTrackbar(hWnd, COLOR_MIN, COLOR_MAX, 80, 25 + HEIGHT_TRACKBAR, 200, HEIGHT_TRACKBAR);
 		hPickerBWnd = CreateTrackbar(hWnd, COLOR_MIN, COLOR_MAX, 80, 25 + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR, 200, HEIGHT_TRACKBAR);
 
-		hPickerButtonWnd = CreateButton(hWnd, TEXT("Confirm"), 125, 25 + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + 10, 100, 25);
+		hPickerButtonWnd = CreateButton(hWnd, TEXT("Confirm"), 65, 25 + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + 10, 100, 25);
+		hPickerShuffleButtonWnd = CreateButton(hWnd, TEXT("Shuffle"), 175, 25 + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + HEIGHT_TRACKBAR + 10, 100, 25);
 		break;
 	}
 	case WM_PAINT:
@@ -311,7 +322,18 @@ LRESULT CALLBACK PickerWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 		if (HIWORD(wParam) == BN_CLICKED)
 		{
-			DestroyWindow(hWnd);
+			if ((HWND) lParam == hPickerButtonWnd)
+			{
+				DestroyWindow(hWnd);
+			}
+			else if ((HWND) lParam == hPickerShuffleButtonWnd)
+			{
+				SendMessage(hPickerRWnd, TBM_SETPOS, TRUE, (LPARAM) RandomInRange(COLOR_MIN, COLOR_MAX));
+				SendMessage(hPickerGWnd, TBM_SETPOS, TRUE, (LPARAM) RandomInRange(COLOR_MIN, COLOR_MAX));
+				SendMessage(hPickerBWnd, TBM_SETPOS, TRUE, (LPARAM) RandomInRange(COLOR_MIN, COLOR_MAX));
+
+				InvalidateRect(hWnd, NULL, TRUE);
+			}
 		}
 		break;
 	}
