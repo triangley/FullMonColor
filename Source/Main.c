@@ -77,7 +77,13 @@ int CALLBACK WinMain
 			MessageBox
 			(
 				NULL,
-				TEXT("FullMonColor HELP: Either execute with 3 parameters (being the RGB color between the inclusive range 0-255) or execute normally to get a window to pick the color."),
+				TEXT
+				(
+					"FullMonColor HELP: Either execute with 3 parameters (being the RGB color between the inclusive range 0-255) or\n"
+					"execute with the flag 'random' to get a random color or\n"
+					"execute normally to get a window to pick the color or\n"
+					"execute with the flag 'shuffled' to get the color picker window initialized with a random color."
+				),
 				TEXT("Help Command Interface"),
 				MB_OK | MB_ICONINFORMATION
 			);
@@ -90,13 +96,18 @@ int CALLBACK WinMain
 			COLOR_B = RandomInRange(COLOR_MIN, COLOR_MAX);
 			goto SECT_Show;
 		}
+		else if (strcmp(argv[1], "--shuffled") == 0 || strcmp(argv[1], "-shuffled") == 0 || strcmp(argv[1], "/shuffled") == 0)
+		{
+			COLOR_R = RandomInRange(COLOR_MIN, COLOR_MAX);
+			COLOR_G = RandomInRange(COLOR_MIN, COLOR_MAX);
+			COLOR_B = RandomInRange(COLOR_MIN, COLOR_MAX);
+		}
 	}
-
-	if (argc == 4)
+	else if (argc == 4)
 	{
-		COLOR_R = atoi(argv[0]);
-		COLOR_G = atoi(argv[1]);
-		COLOR_B = atoi(argv[2]);
+		COLOR_R = atoi(argv[1]);
+		COLOR_G = atoi(argv[2]);
+		COLOR_B = atoi(argv[3]);
 
 		if (!InRange(COLOR_R, COLOR_MIN, COLOR_MAX),
 			!InRange(COLOR_G, COLOR_MIN, COLOR_MAX),
@@ -354,6 +365,12 @@ LRESULT CALLBACK PickerWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			exit(EXIT_SUCCESS);
 		}
+		break;
+	}
+	case WM_CLOSE:
+	case WM_QUIT:
+	{
+		exit(EXIT_SUCCESS);
 		break;
 	}
 	}
